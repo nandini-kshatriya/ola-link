@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ola Link — mobile prototype</title>
+<meta name="description" content="Ola Link: shared electric rides for India's 1–5 km commute leg. Interactive mobile prototype for the Ola Electric 2035 APM assignment.">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ola Link">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta property="og:title" content="Ola Link — Next Link in X minutes">
+<meta property="og:description" content="Interactive mobile prototype: shared electric rides between home and the metro, Bengaluru.">
+<meta property="og:image" content="/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#E9EBE6; --page-text:#1B1D1A; --page-sub:#5D6159; --page-card:#FFFFFF; --page-line:#D5D8D0;
+  --ink:#000000; --paper:#FFFFFF; --lime:#C9E23A; --lime-soft:#EEF6C4;
+  --g1:#F3F4F1; --g2:#E5E7E2; --g4:#9A9E95; --g5:#63675F;
+  --metro:#F2C230; --alert:#D9480F; --alert-soft:#FDE8DD; --safe:#137A55; --safe-soft:#DDF1E8;
+  --women:#B0356B; --women-soft:#F8E1EC;
+  --font:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#16181A; --page-text:#E8EAE5; --page-sub:#A3A79E; --page-card:#202326; --page-line:#34383B; }
+}
+:root[data-theme="dark"]{ --page:#16181A; --page-text:#E8EAE5; --page-sub:#A3A79E; --page-card:#202326; --page-line:#34383B; }
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%}
+body{margin:0;height:100%;background:var(--page);color:var(--page-text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+
+/* ---------- stage (desktop) ---------- */
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:56px;padding:28px}
+.guide{width:320px;flex:none}
+.guide h1{font-size:30px;line-height:1.1;margin:0 0 10px;font-weight:800;letter-spacing:-.02em}
+.guide p{font-size:14px;line-height:1.5;color:var(--page-sub);margin:0 0 18px}
+.scenes{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.scene-btn{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:12px 14px;border-radius:14px;background:var(--page-card);border:1px solid var(--page-line)}
+.scene-btn .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--g2);color:#000;font-size:12px;font-weight:800;display:grid;place-items:center}
+.scene-btn b{display:block;font-size:14px}
+.scene-btn span{display:block;font-size:12.5px;color:var(--page-sub);margin-top:2px;line-height:1.35}
+.scene-btn[aria-current="true"]{border-color:var(--page-text)}
+.scene-btn[aria-current="true"] .n{background:var(--lime)}
+.note{font-size:12px;line-height:1.5;color:var(--page-sub);border-top:1px solid var(--page-line);padding-top:12px}
+.note strong{color:var(--page-text)}
+
+.device-wrap{flex:none;width:390px;height:844px;position:relative}
+.device{width:390px;height:844px;border-radius:52px;background:#000;padding:10px;box-shadow:0 30px 60px -20px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.25);transform-origin:top left}
+.screen{position:relative;width:370px;height:824px;border-radius:43px;overflow:hidden;background:var(--paper);color:var(--ink)}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:33px;border-radius:20px;background:#000;z-index:60}
+
+/* ---------- mobile: full screen app ---------- */
+@media (max-width:640px){
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  .stage{display:block;padding:0;height:100vh;height:100dvh}
+  .guide{display:none}
+  .device-wrap{width:100%;height:100%}
+  .device{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;transform:none!important}
+  .screen{width:100%;height:100%;border-radius:0}
+  .island{display:none}
+  .scenes-fab{display:flex!important}
+}
+.scenes-fab{display:none;position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:80;height:34px;align-items:center;background:var(--lime);color:#000;font-weight:800;font-size:12.5px;padding:0 12px;border-radius:17px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+@media (max-width:640px){
+  .screen .map-top{right:96px}
+  .home-head > .row:first-child, .drv-head > .row:first-child{padding-right:84px}
+  .lock .clock{margin-top:20px}
+}
+.scene-sheet{position:absolute;inset:0;z-index:90;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
+.scene-sheet.open{display:flex}
+.scene-sheet .inner{background:#fff;color:#000;width:100%;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:80%;overflow:auto}
+.scene-sheet h3{margin:0 0 10px;font-size:17px}
+.scene-sheet .scene-btn{background:var(--g1);border-color:var(--g2)}
+.scene-sheet .scene-btn span{color:var(--g5)}
+
+/* ---------- status bar ---------- */
+.status{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:12px 30px 0 34px;font-size:15px;font-weight:700;z-index:50;pointer-events:none}
+.status.light{color:#fff}
+.status .icons{display:flex;gap:6px;align-items:center}
+@media (max-width:640px){ .status{display:none} }
+
+/* ---------- common app pieces ---------- */
+.view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--paper)}
+.view.night{background:#0D1624;color:#E8EEF7}
+.pad-top{padding-top:54px}
+@media (max-width:640px){ .pad-top{padding-top:calc(env(safe-area-inset-top,0px) + 12px)} }
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--g5)}
+.night .muted{color:#9FB0C6}
+.small{font-size:12.5px}
+.tiny{font-size:11.5px}
+.bold{font-weight:800}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--g1);font-size:12.5px;font-weight:700;white-space:nowrap}
+.chip.lime{background:var(--lime);color:#000}
+.chip.dark{background:#000;color:#fff}
+.chip.safe{background:var(--safe-soft);color:var(--safe)}
+.chip.alert{background:var(--alert-soft);color:var(--alert)}
+.chip.women{background:var(--women-soft);color:var(--women)}
+.night .chip{background:#1B2A40;color:#DDE6F2}
+.night .chip.safe{background:#123B2E;color:#7FE0B5}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:16px;font-size:16px;font-weight:800;width:100%}
+.btn.primary{background:#000;color:#fff}
+.btn.lime{background:var(--lime);color:#000}
+.btn.ghost{background:var(--g1);color:#000}
+.night .btn.ghost{background:#1B2A40;color:#E8EEF7}
+.btn.sos{background:#E03131;color:#fff}
+.link-btn{font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.night .icon-btn{background:#1B2A40;color:#fff}
+
+/* bottom nav */
+.nav{display:flex;border-top:1px solid var(--g2);background:#fff;padding:8px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.night .nav{background:#0D1624;border-color:#1E2D44}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:700;color:var(--g4)}
+.nav button[aria-current="true"]{color:#000}
+.night .nav button[aria-current="true"]{color:#fff}
+.nav svg{width:22px;height:22px}
+
+/* map */
+.map-wrap{position:relative;flex:none;height:52%;min-height:300px;overflow:hidden;background:#E8EBE3}
+.night .map-wrap{background:#101C2E}
+.map-wrap svg.map{position:absolute;inset:0;width:100%;height:100%}
+.map-top{position:absolute;top:54px;left:14px;right:14px;display:flex;gap:10px;align-items:center;z-index:5}
+@media (max-width:640px){ .map-top{top:calc(env(safe-area-inset-top,0px) + 10px)} }
+.line-chip{display:flex;align-items:center;gap:8px;min-width:0;line-height:1.25;background:#fff;border-radius:14px;padding:8px 12px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:13px;font-weight:700}
+.night .line-chip{background:#1B2A40;color:#fff}
+.line-badge{display:inline-grid;place-items:center;height:22px;padding:0 7px;border-radius:7px;background:#000;color:var(--lime);font-size:12px;font-weight:800}
+
+/* bottom sheet */
+.sheet{flex:1;margin-top:-22px;position:relative;z-index:6;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;min-height:0}
+.night .sheet{background:#0D1624;box-shadow:0 -6px 20px rgba(0,0,0,.4)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--g2);margin:8px auto 4px}
+.night .grab{background:#24344D}
+.sheet .scroll{padding:6px 18px 16px}
+
+/* promise block — the memorable element */
+.promise{display:flex;align-items:center;gap:16px;padding:14px 0 12px}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ring .num b{font-size:40px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ring .num span{font-size:12px;font-weight:700;margin-top:2px}
+.promise h2{margin:0;font-size:20px;line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.promise p{margin:4px 0 0;font-size:13.5px;line-height:1.4}
+
+.deps{border-top:1px solid var(--g2);margin-top:4px}
+.night .deps{border-color:#1E2D44}
+.dep{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--g2);font-size:14px}
+.night .dep{border-color:#1E2D44}
+.dep .t{width:54px;font-weight:800;font-variant-numeric:tabular-nums}
+.dep .m{flex:1}
+.seatbar{display:flex;gap:3px;margin-top:4px}
+.seatbar i{width:10px;height:10px;border-radius:3px;background:var(--g2)}
+.seatbar i.w{background:var(--women-soft);outline:1.5px solid var(--women)}
+.seatbar i.x{background:#000}
+.night .seatbar i{background:#24344D}
+.night .seatbar i.x{background:#9FB0C6}
+
+.make-it{display:flex;align-items:center;gap:8px;background:var(--safe-soft);color:var(--safe);font-weight:800;font-size:13.5px;border-radius:12px;padding:10px 12px;margin:6px 0 12px}
+.make-it.late{background:var(--alert-soft);color:var(--alert)}
+
+/* home */
+.home-head{padding:0 18px}
+.brand{font-size:26px;font-weight:800;letter-spacing:-.04em}
+.search{display:flex;align-items:center;gap:10px;background:var(--g1);border-radius:16px;height:52px;padding:0 16px;font-weight:700;color:var(--g5);margin:12px 0 16px}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.svc{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:700;position:relative}
+.svc .ic{width:100%;aspect-ratio:1/0.82;border-radius:16px;background:var(--g1);display:grid;place-items:center}
+.svc.link .ic{background:#000;color:var(--lime)}
+.svc .new{position:absolute;top:-7px;right:-2px;background:var(--lime);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:8px}
+.hero-card{background:#000;color:#fff;border-radius:24px;padding:18px;margin:0 0 14px}
+.hero-card .top{display:flex;justify-content:space-between;align-items:flex-start}
+.hero-card .count{display:flex;align-items:baseline;gap:6px;margin:6px 0 2px}
+.hero-card .count b{font-size:64px;line-height:.95;font-weight:800;color:var(--lime);letter-spacing:-.05em}
+.hero-card .count span{font-size:18px;font-weight:800;color:var(--lime)}
+.hero-card .route{font-size:15px;font-weight:700;margin-bottom:12px}
+.hero-card .chip{background:#1E1E1E;color:#EDEDED}
+.hero-card .why{color:#CFCFCF;font-size:12.5px;font-weight:700;text-decoration:underline;text-underline-offset:3px;margin-top:12px;display:inline-block}
+.list-card{border:1px solid var(--g2);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+
+/* lock screen */
+.lock{position:absolute;inset:0;background:linear-gradient(170deg,#2C3A2A 0%,#1B2419 45%,#0E120D 100%);color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:110px}
+.lock .clock{font-size:84px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.lock .date{font-size:17px;font-weight:600;opacity:.85;margin-top:6px}
+.notif{margin-top:48px;width:calc(100% - 24px);background:rgba(245,245,240,.88);color:#000;border-radius:22px;padding:14px;display:flex;gap:12px;text-align:left;backdrop-filter:blur(10px)}
+.app-ic{width:38px;height:38px;border-radius:10px;background:#000;color:var(--lime);display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.notif b{font-size:14.5px}
+.notif p{margin:2px 0 0;font-size:13.5px;line-height:1.35}
+.lock .hint{margin-top:auto;margin-bottom:46px;font-size:13px;opacity:.7}
+
+/* timeline */
+.tl{position:relative;margin:8px 0 12px}
+.leg{display:grid;grid-template-columns:58px 26px 1fr;gap:0 10px;min-height:62px}
+.leg .time{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;padding-top:2px}
+.leg .rail{position:relative;display:flex;justify-content:center}
+.leg .rail::before{content:"";position:absolute;top:18px;bottom:-4px;width:4px;border-radius:2px;background:var(--c,#000)}
+.leg.walk .rail::before{background:repeating-linear-gradient(var(--g4) 0 4px,transparent 4px 8px);width:3px}
+.leg:last-child .rail::before{display:none}
+.leg .dot{width:16px;height:16px;border-radius:50%;border:4px solid var(--c,#000);background:#fff;position:relative;z-index:1;margin-top:2px}
+.leg .what b{font-size:15px}
+.leg .what p{margin:2px 0 10px;font-size:13px;color:var(--g5);line-height:1.35}
+
+/* pass card */
+.pass-card{background:#000;color:#fff;border-radius:22px;padding:18px;position:relative;overflow:hidden}
+.pass-card::after{content:"";position:absolute;right:-70px;top:-70px;width:150px;height:150px;border-radius:50%;border:28px solid var(--lime);opacity:.9}
+.pass-card .big{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.meter{height:8px;border-radius:4px;background:#2A2A2A;overflow:hidden;margin:10px 0 6px}
+.meter i{display:block;height:100%;background:var(--lime)}
+.plan{border:1.5px solid var(--g2);border-radius:18px;padding:14px 16px;margin-bottom:10px}
+.plan.sel{border-color:#000}
+
+/* toast & modal */
+.toast{position:absolute;left:14px;right:14px;bottom:96px;z-index:70;background:#000;color:#fff;border-radius:16px;padding:14px 16px;font-size:14px;font-weight:700;display:flex;gap:10px;align-items:center;transform:translateY(20px);opacity:0;transition:.25s ease;pointer-events:none}
+.toast.show{transform:none;opacity:1}
+.toast .tick{width:24px;height:24px;border-radius:50%;background:var(--lime);color:#000;display:grid;place-items:center;flex:none;font-weight:800}
+.modal{position:absolute;inset:0;z-index:75;background:rgba(0,0,0,.45);display:flex;align-items:flex-end}
+.modal .box{background:#fff;color:#000;width:100%;border-radius:24px 24px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
+.modal h3{margin:0 0 12px;font-size:19px}
+.modal ul{margin:0 0 16px;padding-left:18px;font-size:14px;line-height:1.5}
+
+/* night & safety */
+.night-banner svg{width:20px;height:20px;flex:none}
+.night-banner{display:flex;align-items:center;gap:10px;background:#16263D;border-radius:14px;padding:10px 12px;font-size:13.5px;font-weight:700;margin:8px 0 10px}
+.check{display:flex;align-items:center;gap:10px;font-size:14px;padding:7px 0}
+.check i{width:22px;height:22px;border-radius:50%;background:#123B2E;color:#7FE0B5;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;flex:none}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;border:1.5px solid #24344D;margin-bottom:8px;text-align:left;width:100%}
+.opt.sel{border-color:var(--lime);background:#15233A}
+.opt .radio{width:20px;height:20px;border-radius:50%;border:2px solid #5E7291;flex:none;margin-top:1px;display:grid;place-items:center}
+.opt.sel .radio{border-color:var(--lime)}
+.opt.sel .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--lime)}
+.toggle{width:46px;height:28px;border-radius:14px;background:#2A3A52;position:relative;flex:none;transition:.2s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on{background:var(--lime)}
+.toggle.on::after{left:21px;background:#000}
+
+/* pool */
+.pool-card{border:2px solid #000;border-radius:20px;padding:16px;margin:10px 0}
+.window{height:10px;border-radius:5px;background:var(--g2);position:relative;margin:12px 0 6px}
+.window i{position:absolute;top:0;bottom:0;left:40%;width:30%;border-radius:5px;background:var(--lime);outline:2px solid #000}
+
+/* driver */
+.drv{background:#F4F5F1}
+.drv-head{background:#000;color:#fff;padding:0 18px 22px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.stat{background:#fff;border-radius:16px;padding:14px}
+.stat b{display:block;font-size:26px;letter-spacing:-.03em;font-weight:800;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--g5);font-weight:600}
+.bar{height:8px;border-radius:4px;background:var(--g2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:#000}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+@keyframes pulse{0%{r:9;opacity:.6}100%{r:22;opacity:0}}
+.pulse{animation:pulse 1.8s ease-out infinite}
+</style>
+</head>
+<body>
+<noscript><p style="padding:24px;font-family:sans-serif">This prototype needs JavaScript to run.</p></noscript>
+<div class="stage">
+  <aside class="guide" aria-label="Demo guide">
+    <h1>Ola Link</h1>
+    <p>Shared electric rides for the 1–5 km between home and the metro. The promise: <strong>Next Link in X minutes.</strong> Pick a scene or tap through the app.</p>
+    <div class="scenes" id="scenes"></div>
+    <button class="btn ghost" style="height:42px;font-size:14px;margin-bottom:14px;border:1px solid var(--page-line);background:var(--page-card);color:var(--page-text)" data-action="restart">Restart demo</button>
+    <div class="note"><strong>About this prototype.</strong> Bengaluru, HSR Layout ⇄ Central Silk Board Metro (Yellow Line). Map simplified; times, fares (₹25 a ride, ₹799 Pass) and credits are assumptions for the Ola Electric 2035 APM assignment. No real data or bookings.</div>
+  </aside>
+  <div class="device-wrap" id="deviceWrap">
+    <div class="device" id="device">
+      <div class="screen" id="screen">
+        <div class="island"></div>
+        <div id="status" class="status"></div>
+        <div id="view"></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <button class="scenes-fab" id="fab" data-action="openScenes" aria-label="Demo scenes">Scenes</button>
+        <div class="scene-sheet" id="sceneSheet"><div class="inner"><h3>Jump to a scene</h3><div class="scenes" id="scenesMobile"></div><div class="row" style="gap:10px"><button class="btn ghost" data-action="restart">Restart</button><button class="btn primary" data-action="closeScenes">Close</button></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var SCENES = [
+  {id:"morning", title:"Morning commute", sub:"8:32 am · proactive nudge → stop → journey → ride"},
+  {id:"delay", title:"A late Link", sub:"6:15 pm · promise missed, credit added automatically"},
+  {id:"pool", title:"Off-peak: Link Pool", sub:"2:40 pm · low demand, pickup window + 1.3× cap"},
+  {id:"night", title:"Late night: Night Mode", sub:"10:50 pm · last Link waits, safer drop, safe arrival"},
+  {id:"pass", title:"Link Pass", sub:"Monthly plan that makes demand predictable"},
+  {id:"driver", title:"Driver-owner view", sub:"Suresh runs Line L1 on an Ola vehicle he's buying"}
+];
+var TIMES = {morning:"8:32", delay:"6:15", pool:"2:40", night:"10:50", pass:"7:05", driver:"8:44"};
+
+var S = {scn:"morning", view:"lock", drop:0, wdriver:false, delayStage:0, rideDone:false};
+var timers = [];
+function clearTimers(){ timers.forEach(function(t){clearTimeout(t);cancelAnimationFrame(t);}); timers=[]; }
+function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
+
+var $view = document.getElementById("view");
+var $status = document.getElementById("status");
+var $toast = document.getElementById("toast");
+
+/* ---------------- icons ---------------- */
+var I = {
+  back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  walk:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M9 21l3-7 3 3v4M7 12l3-4 4 1 3 3"/></svg>',
+  shuttle:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="3"/><path d="M3 11h18M7 19v-3M17 19v-3"/><circle cx="7.5" cy="13.5" r=".5"/><circle cx="16.5" cy="13.5" r=".5"/></svg>',
+  auto:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V9a4 4 0 014-4h6l5 6v5"/><path d="M4 11h15"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+  bike:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5L10 9h5l3.5 7.5M14 6h3"/></svg>',
+  cab:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l2-5h10l2 5M3 11h18v6H3z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>',
+  pass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/></svg>',
+  ride:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h6a4 4 0 010 8h-4a4 4 0 000 8h6"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+  search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  bell:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 004 0"/></svg>',
+  share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  bolt:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>'
+};
+function statusBar(){
+  var light = (S.view==="lock" || S.scn==="night" || S.view==="driver" || S.view==="nightride" || S.view==="safe");
+  $status.className = "status" + (light ? " light" : "");
+  $status.innerHTML = '<span>'+TIMES[S.scn]+'</span><span class="icons">'+
+    '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'+
+    '<svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="16" height="8" rx="1.8" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg></span>';
+}
+
+/* ---------------- map ---------------- */
+var L1 = "M250 372 L250 206 L150 206 L150 116 L84 84";
+function mapSVG(o){
+  o = o || {};
+  var n = !!o.night;
+  var land = n ? "#101C2E" : "#E8EBE3";
+  var road = n ? "#1D2D45" : "#FFFFFF";
+  var minor = n ? "#172640" : "#F6F7F3";
+  var lake = n ? "#16304F" : "#BFDCEB";
+  var park = n ? "#13301F" : "#CFE6C4";
+  var label = n ? "#B8C7DB" : "#4A4E47";
+  var halo = n ? "#101C2E" : "#E8EBE3";
+  var lineA = o.faded ? 0.3 : 1;
+  var s = '<svg class="map" viewBox="0 -40 390 460" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Map of HSR Layout and Central Silk Board Metro with Link Line L1">';
+  s += '<rect y="-80" width="390" height="580" fill="'+land+'"/>';
+  // minor grid
+  var i;
+  for(i=0;i<9;i++){ s += '<line x1="'+(100+i*34)+'" y1="96" x2="'+(100+i*34)+'" y2="460" stroke="'+minor+'" stroke-width="3"/>'; }
+  for(i=0;i<9;i++){ s += '<line x1="80" y1="'+(130+i*38)+'" x2="390" y2="'+(130+i*38)+'" stroke="'+minor+'" stroke-width="3"/>'; }
+  s += '<ellipse cx="338" cy="140" rx="46" ry="30" fill="'+lake+'"/><text x="338" y="144" text-anchor="middle" font-size="10" font-weight="700" fill="'+label+'">Agara Lake</text>';
+  s += '<rect x="176" y="300" width="52" height="40" rx="8" fill="'+park+'"/>';
+  // major roads
+  s += '<path d="M0 72 L390 90" stroke="'+road+'" stroke-width="13"/>';
+  s += '<path d="M78 70 L52 250 L34 460" stroke="'+road+'" stroke-width="13" fill="none"/>';
+  s += '<path d="M250 96 L250 460" stroke="'+road+'" stroke-width="9"/><path d="M150 96 L150 460" stroke="'+road+'" stroke-width="8"/>';
+  s += '<path d="M80 206 L390 206" stroke="'+road+'" stroke-width="7"/><path d="M80 300 L390 300" stroke="'+road+'" stroke-width="7"/>';
+  s += '<text x="300" y="84" font-size="9.5" font-weight="700" fill="'+label+'" transform="rotate(2.6 300 84)">Outer Ring Road</text>';
+  s += '<text x="258" y="440" font-size="9.5" font-weight="700" fill="'+label+'" transform="rotate(-90 258 440)">27th Main</text>';
+  s += '<text x="18" y="400" font-size="9.5" font-weight="700" fill="'+label+'" transform="rotate(-84 18 400)">Hosur Road</text>';
+  // metro yellow line
+  s += '<path d="M60 -10 L78 70 L52 250 L34 470" stroke="#F2C230" stroke-width="6" fill="none" stroke-linecap="round"/>';
+  s += '<circle cx="78" cy="70" r="8" fill="#fff" stroke="#F2C230" stroke-width="4"/><circle cx="52" cy="250" r="6" fill="#fff" stroke="#F2C230" stroke-width="3.5"/>';
+  s += '<text x="96" y="72" font-size="11" font-weight="800" fill="'+(n?"#F4D46B":"#7A5A00")+'" paint-order="stroke" stroke="'+halo+'" stroke-width="3">Silk Board Metro</text>';
+  s += '<text x="62" y="262" font-size="9.5" font-weight="700" fill="'+label+'" paint-order="stroke" stroke="'+halo+'" stroke-width="3">Bommanahalli</text>';
+  // Link line L1
+  s += '<g opacity="'+lineA+'"><path d="'+L1+'" stroke="#C9E23A" stroke-width="11" fill="none" stroke-linejoin="round" stroke-linecap="round"/>';
+  s += '<path id="l1" d="'+L1+'" stroke="#000" stroke-width="4.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>';
+  var stops = [[250,372,"Sector 2 · 27th Main",1],[250,284,"BDA Complex",0],[150,206,"14th Main",0],[150,128,"Silk Board Link Stop",0]];
+  stops.forEach(function(st){
+    s += '<circle cx="'+st[0]+'" cy="'+st[1]+'" r="'+(st[3]?8:6)+'" fill="#fff" stroke="#000" stroke-width="3"/>';
+    var tx = st[0]===250 ? st[0]-12 : st[0]+12; var anchor = st[0]===250 ? "end" : "start";
+    s += '<text x="'+tx+'" y="'+(st[1]+4)+'" text-anchor="'+anchor+'" font-size="10.5" font-weight="800" fill="'+(n?"#E8EEF7":"#000")+'" paint-order="stroke" stroke="'+halo+'" stroke-width="3.5">'+st[2]+'</text>';
+  });
+  s += '</g>';
+  // pool stop
+  if(o.pool){
+    s += '<path d="M318 312 L318 206 L150 206 L150 128" stroke="#000" stroke-width="3" stroke-dasharray="6 5" fill="none"/>';
+    s += '<circle cx="318" cy="312" r="9" fill="#C9E23A" stroke="#000" stroke-width="3"/><text x="318" y="316" text-anchor="middle" font-size="10" font-weight="800">C</text>';
+    s += '<text x="330" y="332" font-size="10.5" font-weight="800" paint-order="stroke" stroke="'+halo+'" stroke-width="3.5">Link Pool stop C</text>';
+    s += '<path d="M336 350 L318 318" stroke="#000" stroke-width="2.5" stroke-dasharray="3 4"/>';
+    s += '<circle cx="340" cy="356" r="7" fill="#000" stroke="#C9E23A" stroke-width="3"/>';
+  }
+  // home + you
+  if(!o.pool){
+    var hx = 300, hy = 388;
+    s += '<path d="M'+(hx-2)+' '+(hy-6)+' L254 374" stroke="'+(n?"#9FB0C6":"#000")+'" stroke-width="2.5" stroke-dasharray="3 4"/>';
+    if(o.drops){
+      var d = [[282,372,"A"],[306,356,"B"],[250,372,"C"]];
+      d.forEach(function(p,idx){
+        var sel = (S.drop===idx);
+        s += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(sel?10:8)+'" fill="'+(sel?"#C9E23A":"#24344D")+'" stroke="'+(sel?"#000":"#9FB0C6")+'" stroke-width="2"/><text x="'+p[0]+'" y="'+(p[1]+3.5)+'" text-anchor="middle" font-size="9.5" font-weight="800" fill="'+(sel?"#000":"#E8EEF7")+'">'+p[2]+'</text>';
+      });
+    }
+    s += '<g transform="translate('+(hx+6)+' '+(hy-4)+')"><rect x="-11" y="-11" width="22" height="22" rx="7" fill="'+(n?"#E8EEF7":"#000")+'"/><path d="M-6 1 L0 -5 L6 1 V6 H-6Z" fill="'+(n?"#101C2E":"#C9E23A")+'"/></g>';
+    if(!o.hideYou){
+      s += '<circle cx="'+(hx-2)+'" cy="'+(hy-6)+'" r="9" fill="#C9E23A" class="pulse"/><circle cx="'+(hx-2)+'" cy="'+(hy-6)+'" r="7" fill="#000" stroke="#fff" stroke-width="2.5"/>';
+    }
+  }
+  // vehicles
+  (o.vehicles||[]).forEach(function(v,idx){
+    s += '<g class="veh" id="veh'+idx+'" data-t="'+v+'"><rect x="-11" y="-7" width="22" height="14" rx="4" fill="#000" stroke="#C9E23A" stroke-width="2"/><rect x="-6" y="-3.5" width="12" height="4" rx="1.5" fill="#C9E23A"/></g>';
+  });
+  s += '</svg>';
+  return s;
+}
+function placeVehicles(){
+  var p = document.getElementById("l1"); if(!p) return;
+  var L = p.getTotalLength();
+  document.querySelectorAll(".veh").forEach(function(g){
+    var t = parseFloat(g.getAttribute("data-t"));
+    var pt = p.getPointAtLength(L*t);
+    g.setAttribute("transform","translate("+pt.x+" "+pt.y+")");
+  });
+}
+function animateVehicle(id, from, to, ms, onStep, onDone){
+  var p = document.getElementById("l1"); var g = document.getElementById(id);
+  if(!p||!g){ if(onDone) onDone(); return; }
+  var L = p.getTotalLength(); var start = null;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce) ms = 400;
+  function frame(ts){
+    if(start===null) start = ts;
+    var k = Math.min(1,(ts-start)/ms);
+    var e = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
+    var t = from + (to-from)*e;
+    var pt = p.getPointAtLength(L*t);
+    g.setAttribute("transform","translate("+pt.x+" "+pt.y+")");
+    if(onStep) onStep(k);
+    if(k<1){ timers.push(requestAnimationFrame(frame)); } else if(onDone){ onDone(); }
+  }
+  timers.push(requestAnimationFrame(frame));
+}
+
+function ring(value, max, color){
+  var r = 40, c = 2*Math.PI*r, off = c*(1-Math.max(0,Math.min(1,value/max)));
+  return '<svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="'+r+'" stroke="var(--g2)" stroke-width="8" fill="none"/><circle cx="48" cy="48" r="'+r+'" stroke="'+(color||"#000")+'" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>';
+}
+function seats(taken, women){
+  var h = '<div class="seatbar" aria-label="'+(8-taken)+' of 8 seats free">';
+  for(var i=0;i<8;i++){ var cls = i<2 ? "w" : ""; if(i>=8-taken) cls += " x"; h += '<i class="'+cls+'"></i>'; }
+  return h + '</div>';
+}
+function nav(active, night){
+  return '<nav class="nav" aria-label="Ola Link">'+
+    '<button data-action="goHome" aria-current="false">'+I.home+'Ola home</button>'+
+    '<button data-action="goRide" aria-current="'+(active==="ride")+'">'+I.ride+'Ride</button>'+
+    '<button data-action="goPass" aria-current="'+(active==="pass")+'">'+I.pass+'Pass</button>'+
+    '<button data-action="goSafety" aria-current="'+(active==="safety")+'">'+I.shield+'Safety</button></nav>';
+}
+
+/* ---------------- views ---------------- */
+var V = {};
+
+V.lock = function(){
+  return '<div class="lock"><div class="clock">8:32</div><div class="date">Wednesday, 7 October</div>'+
+    '<button class="notif" data-action="goHome"><div class="app-ic">Link</div><div style="flex:1"><div class="row between"><b>Ola Link</b><span class="tiny muted">now</span></div>'+
+    '<p><strong>Leave in 5 min for the 8:41 Link</strong><br>Sector 2 → Silk Board Metro. Connects to the 8:57 Yellow Line.</p></div></button>'+
+    '<div class="hint">Tap the notification</div></div>';
+};
+
+V.home = function(){
+  var night = S.scn==="night";
+  return '<div class="view pad-top"><div class="scroll"><div class="home-head">'+
+    '<div class="row between" style="margin-top:6px"><div class="brand">Ola</div><div class="chip">Ananya</div></div>'+
+    '<div class="search">'+I.search+'Where to?</div>'+
+    '<div class="services">'+
+      '<button class="svc link" data-action="goRide"><span class="new">New</span><span class="ic">'+I.shuttle+'</span>Link</button>'+
+      '<div class="svc"><span class="ic">'+I.auto+'</span>Auto</div>'+
+      '<div class="svc"><span class="ic">'+I.bike+'</span>Bike</div>'+
+      '<div class="svc"><span class="ic">'+I.cab+'</span>Cab</div>'+
+    '</div>'+
+    '<div class="hero-card"><div class="top"><span class="small bold" style="color:#CFCFCF">Your usual 8:41 Link</span><span class="chip lime">L1</span></div>'+
+      '<div class="count"><b>4</b><span>min</span></div>'+
+      '<div class="route">Sector 2 · 27th Main → Silk Board Metro</div>'+
+      '<div class="row" style="flex-wrap:wrap;gap:6px"><span class="chip">'+I.walk+' 3 min walk</span><span class="chip">1 Pass ride</span><span class="chip">Yellow Line 8:57</span></div>'+
+      '<div style="margin-top:14px"><button class="btn lime" data-action="goRide">View stop and journey</button></div>'+
+      '<button class="why" data-action="why">Why am I seeing this?</button></div>'+
+    '<div class="list-card"><div class="app-ic" style="width:34px;height:34px;font-size:11px">Pass</div><div style="flex:1"><b>Link Pass</b><div class="small muted">31 of 44 rides left · renews 1 Nov</div></div><button class="link-btn" data-action="goPass">Open</button></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Today in HSR Layout</b><div class="small muted">36°C by 1 pm. Stop 14th Main has shade.</div></div></div>'+
+    '</div></div></div>';
+};
+
+V.map = function(){
+  return '<div class="view">'+
+    '<div class="map-wrap">'+mapSVG({vehicles:[0.12,0.62]})+
+      '<div class="map-top"><button class="icon-btn" aria-label="Back" data-action="goHome">'+I.back+'</button><div class="line-chip"><span class="line-badge">L1</span>Sector 2 ⇄ Silk Board Metro · every 5 min</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll">'+
+      '<div class="row between"><div><b style="font-size:16px">Sector 2 · 27th Main</b><div class="small muted">Link Stop · 3 min walk from home</div></div><span class="chip">'+I.walk+' 3 min</span></div>'+
+      '<div class="promise"><div class="ring">'+ring(4,5,"#000")+'<div class="num"><b>4</b><span>min</span></div></div>'+
+        '<div><h2>Next Link in 4 min</h2><p class="muted">Leaves 8:41 · reaches Silk Board Metro 8:53 · ₹25 or 1 Pass ride</p></div></div>'+
+      '<div class="make-it">'+I.walk+' Leave by 8:37 and you\'ll make it</div>'+
+      '<div class="deps">'+
+        dep("8:41","4 min","5 seats free",3)+dep("8:46","9 min","7 seats free",1)+dep("8:51","14 min","8 seats free",0)+
+      '</div>'+
+      '<div class="tiny muted" style="margin:8px 0 12px">Front two seats are the women\'s section. Links leave on time, full or not.</div>'+
+      '<div class="row" style="gap:10px"><button class="btn ghost" data-action="remind">'+I.bell+'Remind me</button><button class="btn primary" data-action="goPlan">Plan full journey</button></div>'+
+    '</div>'+nav("ride")+'</div></div>';
+};
+function dep(t, inx, seatsTxt, taken){
+  return '<div class="dep"><span class="t">'+t+'</span><div class="m"><b>'+inx+'</b> <span class="muted small">· '+seatsTxt+'</span>'+seats(taken)+'</div><span class="chip">L1</span></div>';
+}
+
+V.plan = function(){
+  return '<div class="view pad-top"><div class="row" style="padding:6px 16px 4px"><button class="icon-btn" aria-label="Back" data-action="goRide">'+I.back+'</button><div><b style="font-size:17px">Home → Office</b><div class="small muted">Arrive 9:30 · 49 min door to door</div></div></div>'+
+    '<div class="scroll" style="padding:8px 18px 16px">'+
+    '<div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0 6px"><span class="chip lime">2 Link rides on your Pass</span><span class="chip">Metro ₹40 via NCMC</span></div>'+
+    '<div class="tl">'+
+      leg("8:37","walk","#9A9E95","Walk 3 min","To Link Stop Sector 2 · 27th Main")+
+      leg("8:41","","#000","Link L1 · 12 min","Sector 2 → Silk Board Link Stop · leaves every 5 min")+
+      leg("8:53","walk","#9A9E95","Walk 2 min","To Silk Board Metro, Entry B")+
+      leg("8:57","","#F2C230","Yellow Line · 20 min","Central Silk Board → Electronic City · platform 2")+
+      leg("9:17","walk","#9A9E95","Exit C · 1 min","Link Stop E-City Metro")+
+      leg("9:20","","#000","Link E2 · 8 min","E-City Metro → Phase 1 offices · every 5 min")+
+      leg("9:30","","#000","Office","Electronic City Phase 1")+
+    '</div>'+
+    '<div class="list-card small"><div style="flex:1"><b>If the Yellow Line runs late</b><div class="muted">Your office-side Link E2 will show the next departure that matches your new arrival. No rebooking needed.</div></div></div>'+
+    '</div><div style="padding:10px 18px 14px"><button class="btn primary" data-action="goBoard">Start journey</button></div></div>';
+};
+function leg(time, kind, color, title, desc){
+  return '<div class="leg '+kind+'" style="--c:'+color+'"><div class="time">'+time+'</div><div class="rail"><span class="dot"></span></div><div class="what"><b>'+title+'</b><p>'+desc+'</p></div></div>';
+}
+
+V.board = function(){
+  var cells = ""; var seed = 7;
+  for(var i=0;i<121;i++){ seed = (seed*37+11)%101; var on = (seed%3!==0) || ((i%11<3)&&(Math.floor(i/11)<3)); cells += '<i style="background:'+(on?"#000":"transparent")+'"></i>'; }
+  return '<div class="view pad-top"><div class="row" style="padding:6px 16px 4px"><button class="icon-btn" aria-label="Back" data-action="goPlan">'+I.back+'</button><b style="font-size:17px">Board your Link</b></div>'+
+    '<div class="scroll" style="padding:10px 18px">'+
+    '<div class="pass-card" style="padding-bottom:22px"><div class="small bold" style="color:#CFCFCF">Link Pass · Ananya</div><div class="big" style="margin-top:8px">L1 · 8:41</div><div class="small" style="margin-top:6px;color:#DADADA">Tap your phone at the door, or show this code</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(11,1fr);gap:2px;width:170px;margin:18px auto;padding:10px;background:#fff;border:1px solid var(--g2);border-radius:14px">'+cells+'</div>'+
+    '<div class="list-card"><div style="flex:1"><b>KA 01 L 4471 · Suresh</b><div class="small muted">Ola Link vehicle · 8 seats · arriving at your stop</div></div><span class="chip safe">Verified</span></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Seat 2 is free for you</b><div class="small muted">Women\'s section, front of the vehicle</div></div><span class="chip women">Reserved</span></div>'+
+    '</div><div style="padding:10px 18px 14px"><button class="btn primary" data-action="goLive">Simulate boarding</button></div></div>';
+};
+
+V.live = function(){
+  return '<div class="view">'+
+    '<div class="map-wrap">'+mapSVG({vehicles:[0.02],hideYou:true})+
+    '<div class="map-top"><div class="line-chip"><span class="line-badge">L1</span>On board · KA 01 L 4471</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll" id="liveBody">'+
+      '<div class="promise" style="padding-bottom:4px"><div class="ring" id="liveRing">'+ring(12,12,"#000")+'<div class="num"><b id="liveMin">12</b><span>min</span></div></div>'+
+      '<div><h2 id="liveTitle">To Silk Board Metro</h2><p class="muted" id="liveSub">Next stop: BDA Complex</p></div></div>'+
+      '<div class="make-it" id="liveMetro">Yellow Line 8:57 · platform 2 · you\'ll make it with 4 min to spare</div>'+
+      '<div class="row" style="gap:10px"><button class="btn ghost" data-action="share">'+I.share+'Share trip</button><button class="btn ghost" data-action="sos" style="color:#E03131">SOS</button></div>'+
+    '</div></div></div>';
+};
+
+V.arrived = function(){
+  return '<div class="view pad-top"><div class="scroll" style="padding:24px 18px">'+
+    '<div class="app-ic" style="width:56px;height:56px;border-radius:16px;font-size:14px">Link</div>'+
+    '<h2 style="font-size:26px;letter-spacing:-.02em;margin:16px 0 6px">You\'re at Silk Board Metro, 8:53</h2>'+
+    '<p class="muted" style="margin:0 0 18px;line-height:1.45">Walk 2 min to Entry B. Your Yellow Line train leaves at 8:57 from platform 2.</p>'+
+    '<div class="list-card"><span class="line-badge">E2</span><div style="flex:1"><b>Office-side Link at 9:20</b><div class="small muted">E-City Metro Exit C → Phase 1 offices · every 5 min</div></div></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Pass ride used</b><div class="small muted">30 of 44 rides left this month</div></div></div>'+
+    '</div><div style="padding:10px 18px 16px"><button class="btn primary" data-action="nextScene">Next scene: a late Link</button></div></div>';
+};
+
+V.delay = function(){
+  var st = S.delayStage;
+  var late = st>=1;
+  var ringHtml = late ? ring(5,5,"var(--alert)") : ring(2,5,"#000");
+  var title = st===0 ? "Next Link in 2 min" : (st===1 ? "Running 3 min late" : "Next Link in 3 min");
+  var sub = st===0 ? "Due 6:17 · to Sector 2 · 27th Main" : (st===1 ? "Traffic at 14th Main. New time 6:20." : "Leaves 6:20 · ₹10 credit added for the delay");
+  var num = st===0 ? "2" : (st===1 ? "+3" : "3");
+  return '<div class="view">'+
+    '<div class="map-wrap">'+mapSVG({vehicles:[0.62,0.95],hideYou:true})+
+    '<div class="map-top"><button class="icon-btn" aria-label="Back" data-action="goHome">'+I.back+'</button><div class="line-chip"><span class="line-badge">L1</span>Silk Board Metro ⇄ Sector 2 · every 5 min</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll">'+
+      '<div><b style="font-size:16px">Silk Board Link Stop</b><div class="small muted">Outside Metro Entry B · 6:15 pm · heading home</div></div>'+
+      '<div class="promise"><div class="ring">'+ringHtml+'<div class="num"><b style="'+(late&&st===1?"color:var(--alert);font-size:34px":"")+'">'+num+'</b><span>min</span></div></div>'+
+      '<div><h2 style="'+(st===1?"color:var(--alert)":"")+'">'+title+'</h2><p class="muted">'+sub+'</p></div></div>'+
+      (st===2 ? '<div class="make-it">₹10 credit added to your Ola wallet. The 5-min promise on L1 was missed by 3 min.</div>' :
+        (st===1 ? '<div class="make-it late">We\'re holding the promise to account. If this Link is more than 3 min late, you get ₹10 back automatically.</div>' :
+        '<div class="make-it">'+I.walk+' You\'re at the stop</div>'))+
+      '<div class="deps">'+dep(st===0?"6:17":"6:20",st===0?"2 min":"3 min","4 seats free",4)+dep("6:22","7 min","8 seats free",0)+'</div>'+
+      '<div class="tiny muted" style="margin:10px 0">Promise on L1 this week: 96% of Links left within 5 min of each other.</div>'+
+      '<button class="btn primary" data-action="nextScene">Next scene: off-peak Link Pool</button>'+
+    '</div>'+nav("ride")+'</div></div>';
+};
+
+V.pool = function(){
+  return '<div class="view">'+
+    '<div class="map-wrap">'+mapSVG({pool:true,faded:true,vehicles:[0.4]})+
+    '<div class="map-top"><button class="icon-btn" aria-label="Back" data-action="goHome">'+I.back+'</button><div class="line-chip"><span class="line-badge">L1</span>Off-peak · every 20 min</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll">'+
+      '<div><b style="font-size:16px">To Silk Board Metro</b><div class="small muted">2:40 pm · Sector 1, near Agara Lake</div></div>'+
+      '<div class="list-card" style="margin-top:12px"><div style="flex:1"><b>Wait for the next Link on L1</b><div class="small muted">Leaves 2:58 · 18 min wait · 4 min walk · ₹20</div></div></div>'+
+      '<div class="pool-card"><div class="row between"><b style="font-size:17px">Link Pool</b><span class="chip lime">Faster now</span></div>'+
+        '<div class="small muted" style="margin-top:4px">A shared ride from Stop C, 2 min walk</div>'+
+        '<div class="window"><i></i></div><div class="row between tiny bold"><span>2:40</span><span>Pickup 2:46–2:49</span><span>2:55</span></div>'+
+        '<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:12px"><span class="chip">Trip max 14 min</span><span class="chip">Direct is 11 min</span><span class="chip">2 verified co-riders</span><span class="chip">₹22</span></div>'+
+        '<p class="small muted" style="margin:10px 0 0;line-height:1.45">No detours to anyone\'s door. If the trip takes longer than 14 min, you get ₹10 back.</p></div>'+
+      '<button class="btn primary" data-action="bookPool">Book Link Pool</button>'+
+    '</div>'+nav("ride")+'</div></div>';
+};
+
+V.poolok = function(){
+  return '<div class="view pad-top"><div class="scroll" style="padding:24px 18px">'+
+    '<span class="chip lime">Link Pool booked</span>'+
+    '<h2 style="font-size:26px;letter-spacing:-.02em;margin:14px 0 6px">Walk to Stop C. Pickup 2:46–2:49</h2>'+
+    '<p class="muted" style="margin:0 0 16px;line-height:1.45">KA 01 L 5120 · Farida. You\'ll share with 2 verified riders going to Silk Board Metro.</p>'+
+    '<div class="window" style="height:14px"><i></i></div><div class="row between tiny bold" style="margin-bottom:18px"><span>Now</span><span>Pickup window</span><span>Arrive by 3:03</span></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Why Link Pool now?</b><div class="small muted">Afternoon demand on L1 is low, so Links run every 20 min. Pooling fills one vehicle instead of running empty ones.</div></div></div>'+
+    '</div><div style="padding:10px 18px 16px"><button class="btn primary" data-action="nextScene">Next scene: late night</button></div></div>';
+};
+
+V.night = function(){
+  var drops = [["A · 27th Main & 5th Cross","Lit, 120 m from home · CCTV"],["B · Sector 2 bus stop","Lit, 250 m from home"],["C · Regular Link Stop","Sector 2 · 27th Main, 380 m"]];
+  var opts = drops.map(function(d,i){ return '<button class="opt '+(S.drop===i?"sel":"")+'" data-action="drop" data-i="'+i+'"><span class="radio"></span><span><b style="font-size:14px">'+d[0]+'</b><span class="small muted" style="display:block">'+d[1]+'</span></span></button>'; }).join("");
+  return '<div class="view night">'+
+    '<div class="map-wrap">'+mapSVG({night:true,drops:true,vehicles:[0.97],hideYou:true})+
+    '<div class="map-top"><button class="icon-btn" aria-label="Back" data-action="goHome">'+I.back+'</button><div class="line-chip"><span class="line-badge">L1</span>Night Mode · to Sector 2</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll">'+
+      '<div class="night-banner">'+I.shield+' Night Mode is on after 9 pm</div>'+
+      '<div class="promise" style="padding-top:2px"><div class="ring">'+ring(15,20,"#C9E23A")+'<div class="num"><b>15</b><span>min</span></div></div>'+
+      '<div><h2>Last L1 Link waits for your train</h2><p class="muted">Your Yellow Line train arrives 11:05. The Link leaves only after it does.</p></div></div>'+
+      '<div class="check"><i>✓</i>Verified riders only after dark</div>'+
+      '<div class="check"><i>✓</i>Seat 1 held in the women\'s section</div>'+
+      '<div class="check"><i>✓</i>Trip will be shared live with Amma</div>'+
+      '<div class="row between" style="padding:10px 0 12px"><div><b style="font-size:14px">Prefer a woman driver</b><div class="small muted">Available tonight: Kavya, next at 11:14</div></div><button class="toggle '+(S.wdriver?"on":"")+'" data-action="wdriver" aria-label="Prefer a woman driver" aria-pressed="'+S.wdriver+'"></button></div>'+
+      '<b style="font-size:14px;display:block;margin:4px 0 8px">Drop point near home</b>'+opts+
+      '<button class="btn lime" style="margin-top:6px" data-action="nightRide">Confirm night ride</button>'+
+    '</div>'+nav("ride",true)+'</div></div>';
+};
+
+V.nightride = function(){
+  return '<div class="view night">'+
+    '<div class="map-wrap">'+mapSVG({night:true,drops:true,vehicles:[0.97],hideYou:true})+
+    '<div class="map-top"><div class="line-chip"><span class="line-badge">L1</span>'+(S.wdriver?"Kavya":"Suresh")+' · KA 01 L 4471</div></div></div>'+
+    '<div class="sheet"><div class="grab"></div><div class="scroll">'+
+      '<div class="promise" style="padding-bottom:4px"><div class="ring">'+ring(9,9,"#C9E23A")+'<div class="num"><b id="nMin">9</b><span>min</span></div></div>'+
+      '<div><h2>To drop point '+["A","B","C"][S.drop]+'</h2><p class="muted" id="nSub">On route · shared live with Amma</p></div></div>'+
+      '<div class="check"><i>✓</i>Route check on. We\'ll alert you and Amma if the Link leaves its route.</div>'+
+      '<div class="check"><i>✓</i>CCTV on board · 3 verified riders</div>'+
+      '<div style="margin-top:12px"><button class="btn sos" data-action="sos">Hold for SOS</button></div>'+
+    '</div></div></div>';
+};
+
+V.safe = function(){
+  return '<div class="view night pad-top"><div class="scroll" style="padding:40px 18px">'+
+    '<div class="app-ic" style="width:56px;height:56px;border-radius:16px">Link</div>'+
+    '<h2 style="font-size:26px;letter-spacing:-.02em;margin:16px 0 6px">Dropped at 27th Main & 5th Cross</h2>'+
+    '<p class="muted" style="line-height:1.45;margin:0 0 20px">120 m from home. Tap when you\'re inside. If we don\'t hear from you in 10 min, we\'ll check in and let Amma know.</p>'+
+    '<button class="btn lime" data-action="safeHome">I\'m home</button>'+
+    '<button class="btn ghost" style="margin-top:10px" data-action="sos">I need help</button>'+
+    '</div></div>';
+};
+
+V.pass = function(){
+  return '<div class="view pad-top"><div class="scroll" style="padding:8px 18px 16px">'+
+    '<b style="font-size:24px;letter-spacing:-.02em;display:block;margin:6px 0 14px">Link Pass</b>'+
+    '<div class="pass-card"><div class="small bold" style="color:#CFCFCF">Commuter 44 · October</div><div class="row" style="align-items:baseline;gap:8px;margin-top:10px"><span class="big">31</span><span class="bold">of 44 rides left</span></div>'+
+      '<div class="meter"><i style="width:30%"></i></div><div class="small" style="color:#DADADA">Renews 1 Nov · ₹799 · works on every Link Line</div></div>'+
+    '<div class="make-it" style="margin-top:14px">You\'ve saved ₹212 this month compared with paying ₹25 a ride</div>'+
+    '<b style="display:block;margin:14px 0 10px">Plans</b>'+
+    '<div class="plan sel"><div class="row between"><b>Commuter 44</b><b>₹799/mo</b></div><div class="small muted">44 rides · about ₹18 a ride · your current plan</div></div>'+
+    '<div class="plan"><div class="row between"><b>Unlimited</b><b>₹1,149/mo</b></div><div class="small muted">For two Link legs a day, every day</div></div>'+
+    '<div class="plan"><div class="row between"><b>Link + Metro</b><span class="chip">Pilot</span></div><div class="small muted">One monthly pass with Namma Metro at select stations, where BMRCL agrees</div></div>'+
+    '<div class="list-card small"><div style="flex:1"><b>Your commute this month</b><div class="muted">13 rides · average wait 3.4 min · on time 12 of 13</div></div></div>'+
+    '</div>'+nav("pass")+'</div>';
+};
+
+V.safety = function(){
+  return '<div class="view pad-top"><div class="scroll" style="padding:8px 18px 16px">'+
+    '<b style="font-size:24px;letter-spacing:-.02em;display:block;margin:6px 0 14px">Safety</b>'+
+    '<div class="list-card"><div style="flex:1"><b>Trusted contact</b><div class="small muted">Amma · trips after 9 pm are shared automatically</div></div></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Night Mode</b><div class="small muted">From 9 pm: verified riders only, drop points near home, safe-arrival check</div></div><span class="chip safe">On</span></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Women\'s section</b><div class="small muted">Front two seats on every Link vehicle</div></div></div>'+
+    '<div class="list-card"><div style="flex:1"><b>Prefer a woman driver</b><div class="small muted">Shown when one is available on your line</div></div></div>'+
+    '<button class="btn primary" data-action="scene" data-id="night">See Night Mode</button>'+
+    '</div>'+nav("safety")+'</div>';
+};
+
+V.driver = function(){
+  return '<div class="view drv"><div class="drv-head pad-top">'+
+    '<div class="row between" style="margin-top:6px"><span class="small bold" style="color:#BDBDBD">Ola Link · Driver-owner</span><span class="chip lime">On shift</span></div>'+
+    '<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:10px">Suresh K</div>'+
+    '<div class="small" style="color:#CFCFCF">Line L1 · Sector 2 ⇄ Silk Board Metro · 6:00 am–2:00 pm</div></div>'+
+    '<div class="scroll" style="padding:0 16px 16px">'+
+    '<div class="list-card" style="background:#fff;margin-top:14px"><div style="flex:1"><b>Next departure 8:46 from Silk Board</b><div class="small muted">Hold 40 s: Yellow Line train arriving 8:45</div></div><span class="line-badge">L1</span></div>'+
+    '<div class="stat-grid">'+
+      '<div class="stat"><b>18/40</b><span>Trips today</span></div>'+
+      '<div class="stat"><b>61</b><span>Riders today</span></div>'+
+      '<div class="stat"><b>₹540</b><span>Earned so far (net)</span></div>'+
+      '<div class="stat"><b>97%</b><span>On-time this week</span></div>'+
+    '</div>'+
+    '<div class="stat" style="margin-bottom:10px"><div class="row between"><b style="font-size:17px">Battery 58%</b><span class="chip">'+I.bolt+' Swap 11:30</span></div><span>HSR depot · 3 min swap, included in your weekly plan</span></div>'+
+    '<div class="stat"><div class="row between"><b style="font-size:17px">Vehicle ownership</b><span class="small bold">Week 86 of 208</span></div><div class="bar"><i style="width:41%"></i></div><span style="display:block;margin-top:8px">₹2,800 a week covers the vehicle, battery, insurance and service. The vehicle is yours after week 208.</span></div>'+
+    '</div></div>';
+};
+
+/* ---------------- render & flow ---------------- */
+function render(){
+  clearTimers();
+  statusBar();
+  $view.innerHTML = (V[S.view]||V.home)();
+  placeVehicles();
+  highlightScenes();
+  if(S.view==="live") runLive();
+  if(S.view==="delay" && S.delayStage===0){ later(function(){ S.delayStage=1; renderKeep(); later(function(){ S.delayStage=2; renderKeep(); toast("₹10 credit added. Your Link was 3 min late."); },2600); },2200); }
+  if(S.view==="nightride") runNight();
+}
+function renderKeep(){ statusBar(); $view.innerHTML = V[S.view](); placeVehicles(); }
+
+function runLive(){
+  var mins = document.getElementById("liveMin"), sub = document.getElementById("liveSub");
+  var names = ["BDA Complex","14th Main","Silk Board Link Stop"];
+  animateVehicle("veh0",0.02,1,7000,function(k){
+    if(mins) mins.textContent = Math.max(0,Math.ceil(12*(1-k)));
+    if(sub) sub.textContent = "Next stop: " + names[Math.min(2,Math.floor(k*3))];
+    var r = document.querySelector("#liveRing svg circle:last-child");
+    if(r){ var c = 2*Math.PI*40; r.setAttribute("stroke-dashoffset",(c*k).toFixed(1)); }
+  },function(){ later(function(){ S.view="arrived"; render(); },700); });
+}
+function runNight(){
+  var mins = document.getElementById("nMin");
+  animateVehicle("veh0",0.97,0.03,6500,function(k){ if(mins) mins.textContent = Math.max(0,Math.ceil(9*(1-k))); },function(){ later(function(){ S.view="safe"; render(); },600); });
+}
+
+function toast(msg){
+  $toast.innerHTML = '<span class="tick">✓</span><span>'+msg+'</span>';
+  $toast.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ $toast.classList.remove("show"); },2800);
+}
+function modal(html){
+  var m = document.createElement("div"); m.className="modal"; m.innerHTML='<div class="box">'+html+'</div>';
+  m.addEventListener("click",function(e){ if(e.target===m || e.target.closest("[data-close]")) m.remove(); });
+  document.getElementById("screen").appendChild(m);
+}
+
+function setScene(id){
+  $toast.classList.remove("show");
+  S.scn = id; S.drop = 0; S.wdriver=false; S.delayStage=0;
+  S.view = {morning:"lock",delay:"delay",pool:"pool",night:"night",pass:"pass",driver:"driver"}[id];
+  document.getElementById("sceneSheet").classList.remove("open");
+  try{ history.replaceState(null,"","#"+id); }catch(e){}
+  render();
+}
+function highlightScenes(){
+  document.querySelectorAll(".scene-btn").forEach(function(b){ b.setAttribute("aria-current", String(b.getAttribute("data-id")===S.scn)); });
+}
+function buildScenes(){
+  var html = SCENES.map(function(s,i){ return '<button class="scene-btn" data-action="scene" data-id="'+s.id+'"><span class="n">'+(i+1)+'</span><span><b>'+s.title+'</b><span>'+s.sub+'</span></span></button>'; }).join("");
+  document.getElementById("scenes").innerHTML = html;
+  document.getElementById("scenesMobile").innerHTML = html;
+}
+
+var ACTIONS = {
+  goHome:function(){ S.view="home"; render(); },
+  goRide:function(){ S.view = S.scn==="night" ? "night" : (S.scn==="pool" ? "pool" : (S.scn==="delay"?"delay":"map")); render(); },
+  goPass:function(){ S.view="pass"; render(); },
+  goSafety:function(){ S.view="safety"; render(); },
+  goPlan:function(){ S.view="plan"; render(); },
+  goBoard:function(){ S.view="board"; render(); },
+  goLive:function(){ S.view="live"; render(); },
+  remind:function(){ toast("We'll remind you at 8:37, when it's time to walk."); },
+  share:function(){ toast("Live trip shared with Amma."); },
+  sos:function(){ modal('<h3>SOS</h3><p style="margin:0 0 14px;line-height:1.45">In the real app, holding SOS alerts the Ola safety team, shares your live location with your trusted contact and calls 112. Nothing is sent in this prototype.</p><button class="btn primary" data-close>Close</button>'); },
+  why:function(){ modal('<h3>Why am I seeing this?</h3><ul><li>You usually leave home between 8:30 and 8:40 on weekdays (4 of the last 5).</li><li>You\'re at home, 3 min from Sector 2 · 27th Main.</li><li>The 8:41 Link connects to the 8:57 Yellow Line you usually take.</li></ul><div class="row" style="gap:10px"><button class="btn ghost" data-close>Turn off</button><button class="btn primary" data-close>Got it</button></div>'); },
+  bookPool:function(){ S.view="poolok"; render(); },
+  drop:function(el){ S.drop = parseInt(el.getAttribute("data-i"),10); renderKeep(); },
+  wdriver:function(){ S.wdriver=!S.wdriver; renderKeep(); if(S.wdriver) toast("Kavya will drive your 11:14 Link."); },
+  nightRide:function(){ S.view="nightride"; render(); },
+  safeHome:function(){ toast("Amma has been told you're home."); later(function(){ setScene("pass"); },1800); },
+  nextScene:function(){ var idx = SCENES.findIndex(function(s){return s.id===S.scn;}); setScene(SCENES[(idx+1)%SCENES.length].id); },
+  scene:function(el){ setScene(el.getAttribute("data-id")); },
+  openScenes:function(){ document.getElementById("sceneSheet").classList.add("open"); },
+  closeScenes:function(){ document.getElementById("sceneSheet").classList.remove("open"); },
+  restart:function(){ setScene("morning"); }
+};
+document.addEventListener("click",function(e){
+  var el = e.target.closest("[data-action]"); if(!el) return;
+  var fn = ACTIONS[el.getAttribute("data-action")]; if(fn){ e.preventDefault(); fn(el); }
+});
+
+/* fit the phone frame to short desktop windows */
+function fit(){
+  var d = document.getElementById("device"), w = document.getElementById("deviceWrap");
+  if(window.innerWidth<=640){ d.style.transform=""; w.style.width=""; w.style.height=""; return; }
+  var k = Math.min(1,(window.innerHeight-40)/844);
+  d.style.transform = "scale("+k+")"; w.style.width = (390*k)+"px"; w.style.height = (844*k)+"px";
+}
+window.addEventListener("resize",fit);
+
+buildScenes(); fit();
+var startId = (location.hash||"").replace("#","");
+if(SCENES.some(function(s){return s.id===startId;})){ setScene(startId); } else { render(); }
+window.addEventListener("hashchange",function(){ var id=location.hash.replace("#",""); if(id!==S.scn && SCENES.some(function(s){return s.id===id;})) setScene(id); });
+})();
+</script>
+</body>
+</html>
